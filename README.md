@@ -125,7 +125,7 @@ netlify/functions/push-supper.mjs
 THISDL_SCHOOL=稻香湖
 THISDL_REMARK=中学
 THISDL_TIMEZONE=Asia/Shanghai
-PUSH_CHANNEL=wework-bot
+PUSH_CHANNEL=
 WEWORK_BOT_WEBHOOK=******
 ```
 
