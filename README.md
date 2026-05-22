@@ -126,7 +126,7 @@ THISDL_SCHOOL=稻香湖
 THISDL_REMARK=中学
 THISDL_TIMEZONE=Asia/Shanghai
 PUSH_CHANNEL=wework-bot
-WEWORK_BOT_WEBHOOK=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=你的key
+WEWORK_BOT_WEBHOOK=******
 ```
 
 注意：不要把 webhook 写进 `netlify.toml`，Netlify Functions 运行时读取不到 toml 里的普通环境变量，也不适合把密钥提交到 Git。
