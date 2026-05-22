@@ -1,0 +1,19 @@
+{
+  "name": "thisdl-menu-push",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Fetch THISDL canteen menus and push lunch/supper to WeChat followers.",
+  "scripts": {
+    "preview:lunch": "node src/cli.mjs --meal lunch --dry-run",
+    "preview:supper": "node src/cli.mjs --meal supper --dry-run",
+    "push:lunch": "node src/cli.mjs --meal lunch",
+    "push:supper": "node src/cli.mjs --meal supper",
+    "bot:lunch": "node src/cli.mjs --meal lunch --channel wework-bot",
+    "bot:supper": "node src/cli.mjs --meal supper --channel wework-bot",
+    "test": "node src/cli.mjs --meal lunch --date 2026-05-22 --school 未来城 --dry-run"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

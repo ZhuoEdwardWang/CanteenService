@@ -1,0 +1,11 @@
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+[functions."push-lunch"]
+  # Netlify cron uses UTC. 03:45 UTC = 11:45 Asia/Shanghai.
+  schedule = "45 3 * * 1-5"
+
+[functions."push-supper"]
+  # Netlify cron uses UTC. 09:15 UTC = 17:15 Asia/Shanghai.
+  schedule = "15 9 * * 1-5"
