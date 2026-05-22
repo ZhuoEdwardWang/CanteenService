@@ -51,7 +51,7 @@ node src/cli.mjs --week-id 90 --week 星期一 --meal lunch --dry-run
 ```bash
 THISDL_SCHOOL=稻香湖
 THISDL_REMARK=中学
-PUSH_CHANNEL=wework-bot
+PUSH_CHANNEL=
 WEWORK_BOT_WEBHOOK=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=你的key
 ```
 
