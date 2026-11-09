@@ -11,7 +11,7 @@
     "push:supper": "node src/cli.mjs --meal supper",
     "bot:lunch": "node src/cli.mjs --meal lunch --channel wework-bot",
     "bot:supper": "node src/cli.mjs --meal supper --channel wework-bot",
-    "test": "node src/cli.mjs --meal lunch --date 2026-05-22 --school 未来城 --dry-run"
+    "test": "node --test test/menu-week.test.mjs"
   },
   "engines": {
     "node": ">=18"

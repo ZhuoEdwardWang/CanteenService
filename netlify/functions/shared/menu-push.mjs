@@ -1,6 +1,6 @@
 import { getConfig } from "../../../src/env.mjs";
 import { formatMenuMessage } from "../../../src/format.mjs";
-import { fetchMenuByWeekId, fetchMenuForDate } from "../../../src/thisdl.mjs";
+import { fetchMenuByWeekId, fetchMenuForDate, MenuWeekNotFoundError } from "../../../src/thisdl.mjs";
 import { sendMessage } from "../../../src/wechat.mjs";
 import { sendWeworkBotMessage } from "../../../src/wework-bot.mjs";
 
@@ -54,6 +54,15 @@ export async function runScheduledPush(meal) {
       headers: { "content-type": "application/json" }
     });
   } catch (error) {
+    if (error instanceof MenuWeekNotFoundError) {
+      // 菜谱尚未发布属于上游数据状态，不应让定时任务以 500 失败。
+      console.warn(error.message);
+      return new Response(JSON.stringify({ ok: true, skipped: true, reason: error.message }), {
+        status: 200,
+        headers: { "content-type": "application/json" }
+      });
+    }
+
     console.error(error);
     return new Response(JSON.stringify({ ok: false, error: error.message }), {
       status: 500,

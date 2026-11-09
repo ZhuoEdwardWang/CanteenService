@@ -22,20 +22,42 @@ node src/cli.mjs --week-id 90 --week 星期一 --meal lunch --dry-run
 
 前端页面请求当天菜单时没有额外传 `school`，`week_id` 本身就能定位到某个校区的某一周；`school` 只用于程序自动查找“今天该用哪个 week_id”。
 
+### 周列表可能漏掉当前周
+
+上游 `canteen_week_list` 有时会晚于菜单明细更新。例如 2026-11-09 这一周：
+
+- `canteen_week_list` 最新只到 `week_id=148`（2026.11.02-2026.11.08）
+- 但 `canteen_item_list?week_id=149` 已经有 2026.11.09-2026.11.15 的完整菜单
+
+程序会先按周列表查找；找不到时，以最近一周为锚点估算并探测相邻 `week_id`，再用菜单返回的 `title_date` 和 `school` 校验，避免因上游漏周而推送失败。日志里会出现：
+
+```text
+[thisdl] 周列表缺少 2026-11-09 所在周，已通过 week_id=149 找到 2026.11.09-2026.11.15
+```
+
+如果确认菜单已经发布，也可以直接指定：
+
+```bash
+node src/cli.mjs --week-id 149 --week 星期一 --meal lunch --dry-run
+```
+
 ## 本地预览
 
 ```bash
 cp .env.example .env
-npm run test
+npm run preview:lunch
 ```
 
 常用命令：
 
 ```bash
+npm test                 # 离线回归测试，不访问真实接口
+npm run preview:lunch    # 预览今天的午餐
+npm run preview:supper   # 预览今天的晚餐
 node src/cli.mjs --meal lunch --dry-run
 node src/cli.mjs --meal supper --dry-run
-node src/cli.mjs --date 2026-05-22 --school 未来城 --meal lunch --dry-run
-node src/cli.mjs --week-id 90 --week 星期一 --meal lunch --dry-run
+node src/cli.mjs --date 2026-11-09 --school 稻香湖 --remark 中学 --meal lunch --dry-run
+node src/cli.mjs --week-id 149 --week 星期一 --meal lunch --dry-run
 ```
 
 ## 企业微信 Bot 推送
@@ -108,16 +130,16 @@ netlify/functions/push-supper.mjs
 
 ```toml
 [functions."push-lunch"]
-  schedule = "45 3 * * 1-5"
+  schedule = "45 2 * * 1-5"
 
 [functions."push-supper"]
-  schedule = "15 9 * * 1-5"
+  schedule = "00 8 * * 1-5"
 ```
 
 对应北京时间：
 
-- 工作日 11:45 推午餐
-- 工作日 17:15 推晚餐
+- 工作日 10:45 推午餐
+- 工作日 16:00 推晚餐
 
 在 Netlify 控制台配置环境变量，Scope 需要包含 Functions：
 
@@ -139,6 +161,28 @@ WEWORK_BOT_WEBHOOK=******
 4. 看企业微信群是否收到消息，并查看 Function logs。
 
 Netlify Scheduled Functions 只会在 published deploy 上按计划运行，Deploy Preview 不会按计划执行。
+
+### 常见问题：没有找到 … 所在周的菜单周 ID
+
+例如日志中出现：
+
+```text
+Error: 没有找到 稻香湖 在 2026-11-09 所在周的菜单周 ID
+```
+
+这是上游周列表漏周导致的。2026-11-09 当天实测 `canteen_week_list` 没有 `week_id=149`，但 `canteen_item_list?week_id=149` 返回了完整菜单。当前版本会自动探测相邻 `week_id`，正常情况下不会再报错。
+
+如果探测后仍找不到，说明该周菜单确实还没发布，或 `THISDL_SCHOOL` 写错了。定时函数会记录警告并返回：
+
+```json
+{ "ok": true, "skipped": true, "reason": "..." }
+```
+
+而不是以 500 失败；等菜单发布后下一次定时任务会自动恢复。需要手动预览时可以直接指定已知的 `week_id`：
+
+```bash
+node src/cli.mjs --week-id 149 --week 星期一 --meal lunch --dry-run
+```
 
 ### Cron 服务器
 
